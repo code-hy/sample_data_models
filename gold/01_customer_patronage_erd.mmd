@@ -1,7 +1,3 @@
-# Model 01 — Customer Patronage & Journey (Gold) ERD
-# Dimensional star/snowflake. Conformed dimensions shared across Gold marts.
-
-```mermaid
 erDiagram
     DIM_TIME ||--o{ FACT_TRIP : "tap_on / tap_off"
     DIM_MODE ||--o{ FACT_TRIP : ""
@@ -26,7 +22,7 @@ erDiagram
         date calendar_date
         time time_of_day
         boolean peak_period_flag
-        string  fare_period
+        string fare_period
     }
     DIM_MODE {
         bigint mode_sk PK
@@ -104,4 +100,3 @@ erDiagram
         decimal total_fare_aud
         int transfer_count
     }
-```

@@ -1,7 +1,3 @@
-# Model 03 — Asset Register & Predictive Maintenance (Gold) ERD
-# Corporate 3NF backbone + asset-analytics facts. TAHE/TfNSW asset hierarchy.
-
-```mermaid
 erDiagram
     DIM_ASSET_CLASS ||--o{ DIM_ASSET_CLASS : "parent hierarchy"
     DIM_ASSET_CLASS ||--o{ DIM_ASSET : "types"
@@ -96,4 +92,3 @@ erDiagram
         decimal asset_downtime_hours
         string failure_mode
     }
-```

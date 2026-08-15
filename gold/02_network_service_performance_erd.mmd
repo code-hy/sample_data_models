@@ -1,7 +1,3 @@
-# Model 02 — Network & Service Performance (Gold) ERD
-# GTFS-inspired reference backbone + on-time performance facts.
-
-```mermaid
 erDiagram
     DIM_MODE ||--o{ DIM_ROUTE : "classifies"
     DIM_OPERATOR ||--o{ DIM_ROUTE : "runs"
@@ -91,4 +87,3 @@ erDiagram
         int alighting_count
         boolean is_timing_point
     }
-```
