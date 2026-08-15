@@ -1,0 +1,99 @@
+# Model 03 — Asset Register & Predictive Maintenance (Gold) ERD
+# Corporate 3NF backbone + asset-analytics facts. TAHE/TfNSW asset hierarchy.
+
+```mermaid
+erDiagram
+    DIM_ASSET_CLASS ||--o{ DIM_ASSET_CLASS : "parent hierarchy"
+    DIM_ASSET_CLASS ||--o{ DIM_ASSET : "types"
+    DIM_ASSET_CLASS ||--o{ DIM_COMPONENT : "categorises"
+    DIM_ASSET ||--o{ BRIDGE_ASSET_COMPONENT : "fits"
+    DIM_COMPONENT ||--o{ BRIDGE_ASSET_COMPONENT : "installed on"
+    DIM_ASSET ||--o{ FACT_ASSET_OPERATION : "records"
+    DIM_COMPONENT ||--o{ FACT_ASSET_OPERATION : "senses"
+    DIM_ASSET ||--o{ FACT_WORK_ORDER : "maintains"
+    DIM_COMPONENT ||--o{ FACT_WORK_ORDER : "targets"
+    DIM_PROJECT ||--o{ BRIDGE_PROJECT_ASSET : ""
+    DIM_ASSET ||--o{ BRIDGE_PROJECT_ASSET : ""
+    DIM_TIME ||--o{ FACT_ASSET_OPERATION : "event time"
+
+    DIM_ASSET_CLASS {
+        bigint asset_class_sk PK
+        string asset_class_code UK
+        string asset_class_name
+        bigint parent_class_fk
+        string maintenance_regime
+    }
+    DIM_ASSET {
+        bigint asset_sk PK
+        string asset_tag UK
+        bigint asset_class_fk FK
+        string manufacturer
+        date in_service_date
+        string current_operator_fk
+        string owning_entity
+        string asset_status
+    }
+    DIM_COMPONENT {
+        bigint component_sk PK
+        string component_code UK
+        string component_name
+        bigint asset_class_fk FK
+        string criticality
+        boolean smart_sensor_flag
+    }
+    BRIDGE_ASSET_COMPONENT {
+        bigint bridge_id PK
+        bigint asset_fk FK
+        bigint component_fk FK
+        date fitted_date
+        date removed_date
+        decimal accumulated_usage_km
+    }
+    DIM_PROJECT {
+        bigint project_sk PK
+        string project_code UK
+        string project_name
+        string project_type
+        string program
+        string status
+    }
+    BRIDGE_PROJECT_ASSET {
+        bigint bridge_id PK
+        bigint project_fk FK
+        bigint asset_fk FK
+        string works_type
+    }
+    DIM_TIME {
+        bigint time_sk PK
+        date calendar_date
+    }
+    FACT_ASSET_OPERATION {
+        bigint operation_id PK
+        bigint asset_fk FK
+        bigint component_fk FK
+        bigint time_sk FK
+        timestamp event_datetime
+        string event_type
+        string operation_location_fk
+        decimal energy_kwh
+        decimal usage_km
+        decimal temperature_c
+        decimal vibration_ms2
+        string fault_code
+        string severity
+    }
+    FACT_WORK_ORDER {
+        bigint work_order_id PK
+        bigint asset_fk FK
+        bigint component_fk FK
+        string wo_type
+        string wo_status
+        string priority
+        timestamp raised_datetime
+        timestamp completed_datetime
+        decimal labour_hours
+        decimal total_cost_aud
+        decimal asset_downtime_hours
+        string failure_mode
+    }
+```

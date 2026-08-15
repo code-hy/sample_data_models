@@ -1,0 +1,107 @@
+# Model 01 — Customer Patronage & Journey (Gold) ERD
+# Dimensional star/snowflake. Conformed dimensions shared across Gold marts.
+
+```mermaid
+erDiagram
+    DIM_TIME ||--o{ FACT_TRIP : "tap_on / tap_off"
+    DIM_MODE ||--o{ FACT_TRIP : ""
+    DIM_OPERATOR ||--o{ FACT_TRIP : ""
+    DIM_SERVICE }o--|| DIM_MODE : "runs under"
+    DIM_SERVICE }o--|| DIM_OPERATOR : "run by"
+    DIM_SERVICE ||--o{ FACT_TRIP : ""
+    DIM_STOP_LOCATION ||--o{ FACT_TRIP : "origin"
+    DIM_STOP_LOCATION ||--o{ FACT_TRIP : "destination"
+    DIM_CUSTOMER_PARTY ||--o{ FACT_TRIP : ""
+    DIM_CUSTOMER_PARTY ||--o{ DIM_CARD : "owns (SCD2)"
+    DIM_CARD ||--o{ FACT_TRIP : ""
+    DIM_CARD ||--o{ FACT_JOURNEY : ""
+    DIM_CUSTOMER_PARTY ||--o{ FACT_JOURNEY : ""
+    DIM_STOP_LOCATION ||--o{ FACT_JOURNEY : "origin"
+    DIM_STOP_LOCATION ||--o{ FACT_JOURNEY : "destination"
+    DIM_CARD ||--o{ BRIDGE_CARD_CONCESSION : ""
+    DIM_CUSTOMER_PARTY ||--o{ BRIDGE_CARD_CONCESSION : "via card"
+
+    DIM_TIME {
+        bigint time_sk PK
+        date calendar_date
+        time time_of_day
+        boolean peak_period_flag
+        string  fare_period
+    }
+    DIM_MODE {
+        bigint mode_sk PK
+        string mode_code UK
+        string mode_name
+        string fare_mode_group
+    }
+    DIM_OPERATOR {
+        bigint operator_sk PK
+        string operator_code UK
+        string operator_name
+        string owner_category
+    }
+    DIM_SERVICE {
+        bigint service_sk PK
+        string service_code UK
+        string service_name
+        bigint mode_fk FK
+        bigint operator_fk FK
+    }
+    DIM_STOP_LOCATION {
+        bigint location_sk PK
+        string stop_id UK
+        string stop_name
+        string stop_type
+        double latitude
+        double longitude
+        boolean accessible_flag
+    }
+    DIM_CUSTOMER_PARTY {
+        bigint customer_sk PK
+        string customer_key UK
+        string first_name
+        string last_name
+        boolean marketing_consent_flag
+    }
+    DIM_CARD {
+        bigint card_sk PK
+        string card_token UK
+        string card_type
+        bigint customer_fk FK
+        boolean auto_top_up_flag
+        string card_status
+    }
+    BRIDGE_CARD_CONCESSION {
+        bigint bridge_id PK
+        bigint card_fk FK
+        string concession_code
+        string verification_status
+    }
+    FACT_TRIP {
+        bigint trip_id PK
+        bigint card_sk FK
+        bigint customer_sk FK
+        bigint mode_sk FK
+        bigint operator_sk FK
+        bigint service_sk FK
+        bigint origin_location_sk FK
+        bigint destination_location_sk FK
+        bigint tap_on_time_sk FK
+        bigint tap_off_time_sk FK
+        date trip_date
+        decimal distance_km
+        int trip_duration_sec
+        decimal fare_amount_aud
+        boolean default_fare_flag
+    }
+    FACT_JOURNEY {
+        bigint journey_id PK
+        bigint card_sk FK
+        bigint customer_sk FK
+        bigint origin_location_sk FK
+        bigint destination_location_sk FK
+        int total_trips
+        decimal total_fare_aud
+        int transfer_count
+    }
+```

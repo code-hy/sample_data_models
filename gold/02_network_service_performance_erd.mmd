@@ -1,0 +1,94 @@
+# Model 02 — Network & Service Performance (Gold) ERD
+# GTFS-inspired reference backbone + on-time performance facts.
+
+```mermaid
+erDiagram
+    DIM_MODE ||--o{ DIM_ROUTE : "classifies"
+    DIM_OPERATOR ||--o{ DIM_ROUTE : "runs"
+    DIM_ROUTE ||--o{ DIM_TRIP_PATTERN : "services"
+    DIM_ROUTE ||--o{ BRIDGE_ROUTE_STOP : "calls at"
+    DIM_STOP_LOCATION ||--o{ BRIDGE_ROUTE_STOP : "served by"
+    DIM_TRIP_PATTERN ||--o{ FACT_SERVICE_RUN : "instantiates"
+    DIM_CALENDAR_SERVICE ||--o{ FACT_SERVICE_RUN : "schedules"
+    FACT_SERVICE_RUN ||--o{ FACT_STOP_DWELL : "visits"
+    DIM_STOP_LOCATION ||--o{ FACT_STOP_DWELL : "at"
+    DIM_ROUTE ||--o{ FACT_SERVICE_RUN : "part of"
+    DIM_MODE ||--o{ FACT_SERVICE_RUN : ""
+    DIM_OPERATOR ||--o{ FACT_SERVICE_RUN : ""
+
+    DIM_MODE {
+        bigint mode_sk PK
+        string mode_code UK
+        string mode_name
+        string fare_mode_group
+    }
+    DIM_OPERATOR {
+        bigint operator_sk PK
+        string operator_code UK
+        string operator_name
+    }
+    DIM_ROUTE {
+        bigint route_sk PK
+        string route_id UK
+        string agency_id UK
+        string route_short_name
+        string route_long_name
+        bigint mode_fk FK
+        bigint operator_fk FK
+    }
+    DIM_TRIP_PATTERN {
+        bigint trip_pattern_sk PK
+        bigint route_sk FK
+        string trip_id UK
+        string shape_id
+        string headsign
+        smallint direction_id
+    }
+    DIM_CALENDAR_SERVICE {
+        bigint calendar_sk PK
+        string service_id
+        date service_date
+        boolean operating_flag
+        string exception_type
+    }
+    DIM_STOP_LOCATION {
+        bigint location_sk PK
+        string stop_id UK
+        string stop_name
+        string stop_type
+    }
+    BRIDGE_ROUTE_STOP {
+        bigint bridge_id PK
+        bigint route_sk FK
+        bigint location_sk FK
+        int stop_sequence
+        decimal distance_from_start
+        boolean is_timing_point_flag
+    }
+    FACT_SERVICE_RUN {
+        bigint service_run_id PK
+        bigint trip_pattern_sk FK
+        bigint route_sk FK
+        bigint operator_sk FK
+        bigint mode_sk FK
+        bigint calendar_sk FK
+        bigint vehicle_asset_fk
+        timestamp scheduled_start_datetime
+        timestamp actual_start_datetime
+        boolean on_time_flag
+        int late_minutes
+        boolean cancelled_flag
+    }
+    FACT_STOP_DWELL {
+        bigint dwell_id PK
+        bigint service_run_fk FK
+        bigint location_sk FK
+        int stop_sequence
+        timestamp scheduled_departure
+        timestamp actual_departure
+        int dwell_time_sec
+        int boarding_count
+        int alighting_count
+        boolean is_timing_point
+    }
+```
