@@ -19,6 +19,16 @@ the shared data dictionary — and it explains how the trio fits together as one
 - [`RESEARCH.md`](./RESEARCH.md) — the TfNSW deep research: organisation, entities, business processes, medallion mapping.
 - [`data_dictionary.md`](./data_dictionary.md) — table / column / key / SCD / business-rule reference for all three models.
 - [`Dimensional_Model_Design.md`](./Dimensional_Model_Design.md) is the canonical four-step write-up (used as the template for the other two).
+- [`docs/`](./docs/) — rendered PNG-equivalent (`.jpg`) previews of every diagram, so they display in any viewer.
+
+### Rendered diagram previews
+
+| Diagram | Preview |
+|---|---|
+| Model 01 — Customer Patronage (ERD) | ![Model 01 ERD](./docs/01_customer_patronage_erd.jpg) |
+| Model 02 — Network & OTP (ERD) | ![Model 02 ERD](./docs/02_network_service_performance_erd.jpg) |
+| Model 03 — Asset & Maintenance (ERD) | ![Model 03 ERD](./docs/03_asset_maintenance_erd.jpg) |
+| Cross-model flow | ![Cross-model flow](./docs/cross_model_flow.jpg) |
 
 ---
 

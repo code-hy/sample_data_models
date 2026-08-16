@@ -1,0 +1,43 @@
+flowchart LR
+    subgraph Conformed [Conformed Dimensions -- shared]
+        T[dim_time]
+        M[dim_mode]
+        O[dim_operator]
+        L[dim_stop_location]
+    end
+
+    subgraph M01 [Model 01 - Customer Patronage]
+        C[dim_customer_party]
+        K[dim_card]
+        FT[fact_trip]
+        FJ[fact_journey]
+    end
+
+    subgraph M02 [Model 02 - Network & OTP]
+        R[dim_route]
+        P[dim_trip_pattern]
+        CS[dim_calendar_service]
+        FSR[fact_service_run]
+        FSD[fact_stop_dwell]
+    end
+
+    subgraph M03 [Model 03 - Asset & Maintenance]
+        AC[dim_asset_class]
+        AS[dim_asset]
+        CP[dim_component]
+        FAO[fact_asset_operation]
+        FWO[fact_work_order]
+    end
+
+    T --- FT
+    M --- FT
+    O --- FT
+    L --- FT
+    M --- FSR
+    O --- FSR
+    P --- FSR
+    R --- FSR
+    FSR --- FSD
+    AS --- FSR
+    AS --- FAO
+    AS --- FWO
