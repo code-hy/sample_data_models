@@ -20,8 +20,9 @@ designed as a **Gold / Medallion layer**.
 | `gold/02_network_service_performance.sql` + `_erd.mmd` | **Model 02** — Network & on-time performance (GTFS-inspired) |
 | `gold/03_asset_maintenance.sql` + `_erd.mmd` | **Model 03** — Asset register & predictive maintenance (3NF backbone) |
 | `gold/data_dictionary.md` | Table / column / key / SCD / business-rule reference for all three models |
-| `gold/docs/*.png` | Rendered PNG previews of the ERDs and the cross-model flow diagram |
-| `verify_models.py` | Verification harness — transpiles DDL to SQLite and checks parse + FK integrity |
+|| `gold/docs/*.png` | Rendered PNG previews of the ERDs and the cross-model flow diagram ||
+|| `verify_models.py` | Verification harness — transpiles DDL to SQLite and checks parse + FK integrity ||
+|| `bronze/` | **Data Vault 2.0 Raw Vault** — Bronze layer with 41 tables: 13 hubs, 15 links, 14 satellites, 6 link-satellites, 3 reference tables; DDL, conceptual model, data dictionary, and ERD ||
 
 All DDL is **Databricks Delta / Snowflake** dialect. Run the verifier from the
 repo root:
