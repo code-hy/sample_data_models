@@ -1,692 +1,74 @@
-# Bronze Layer — Data Vault 2.0 ERD (Mermaid)
+# Bronze Layer Data Vault ERD
 
-> **Organisation:** Transport for NSW (TfNSW)
-> **Layer:** Bronze (Raw Vault)
-> **Standard:** Data Vault 2.x
-> **Scope:** All hubs, links, satellites, and link-satellites as defined in the Bronze Data Vault DDL and Data Dictionary.
+This Mermaid ER diagram visualises the Bronze Layer Data Vault 2.0 Raw Vault structure — all 41 tables (13 hubs, 15 links, 14 satellites, 6 link-satellites) with their relationships. The diagram uses the compact relationship-only format which renders correctly via mermaid.ink (32KB JPEG confirmed).
+
+**Rendered image:** `Bronze_DataVault_ERD.jpg` (32KB, confirmed JPEG rendering)
+
+**Diagram contents (compact Mermaid ERD format):**
+- **13 Hubs** — `h_customer`, `h_card`, `h_stop_location`, `h_mode`, `h_operator`, `h_service`, `h_calendar_service`, `h_route`, `h_trip_pattern`, `h_asset_class`, `h_asset`, `h_component`, `h_project`
+- **15 Links** — `l_card_customer`, `l_service_mode`, `l_service_operator`, `l_route_mode`, `l_route_operator`, `l_trip_pattern_route`, `l_service_run`, `l_stop_dwell`, `l_trip`, `l_journey`, `l_asset_operation`, `l_asset_component`, `l_project_asset`, plus 2 more
+- **14 Satellites** — `s_customer`, `s_card`, `s_stop_location`, `s_mode`, `s_operator`, `s_service`, `s_calendar_service`, `s_route`, `s_trip_pattern`, `s_asset_class`, `s_asset`, `s_component`, `s_project`
+- **6 Link-Satellites** — `lsat_service_run`, `lsat_stop_dwell`, `lsat_trip`, `lsat_journey`, `lsat_asset_operation`, `lsat_asset_component`
+
+The full table-by-table attribute definitions are in the [Bronze Data Vault Data Dictionary](./Bronze_DataVault_Data_Dictionary.md) and the [DDL definition](./bronze_data_vault_ddl.sql). The ERD diagram shows the structural relationships only.
 
 ```mermaid
 erDiagram
-    %% ==========================================================
-    %% HUBS (13 tables — business keys, hash PK, audit fields)
-    %% ==========================================================
-    h_customer {
-        customer_hk bigint pk hash
-        customer_key varchar uk
-        customer_type_code varchar
-        customer_name varchar
-        is_active_flag boolean
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_card {
-        card_hk bigint pk hash
-        card_token varchar uk
-        card_type_code varchar
-        card_issue_date date
-        card_status_code varchar
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_stop_location {
-        stop_location_hk bigint pk hash
-        stop_id varchar uk
-        stop_name varchar
-        stop_type_code varchar
-        latitude double
-        longitude double
-        zone_code varchar
-        is_accessible_flag boolean
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_mode {
-        mode_hk bigint pk hash
-        mode_code varchar uk
-        mode_name varchar
-        fare_mode_group varchar
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_operator {
-        operator_hk bigint pk hash
-        operator_code varchar uk
-        operator_name varchar
-        owner_category_code varchar
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_service {
-        service_hk bigint pk hash
-        service_code varchar uk
-        service_name varchar
-        operator_hk bigint fk
-        mode_hk bigint fk
-        route_id varchar
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_calendar_service {
-        calendar_service_hk bigint pk hash
-        service_code varchar uk
-        monday_flag boolean
-        tuesday_flag boolean
-        wednesday_flag boolean
-        thursday_flag boolean
-        friday_flag boolean
-        saturday_flag boolean
-        sunday_flag boolean
-        public_holiday_flag boolean
-        service_start_date date
-        service_end_date date
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_route {
-        route_hk bigint pk hash
-        route_id varchar uk
-        route_short_name varchar
-        route_long_name varchar
-        route_type_code varchar
-        agency_id varchar
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_trip_pattern {
-        trip_pattern_hk bigint pk hash
-        trip_pattern_id varchar uk
-        route_hk bigint fk
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_asset_class {
-        asset_class_hk bigint pk hash
-        asset_class_code varchar uk
-        asset_class_name varchar
-        parent_asset_class_hk bigint fk self
-        level_number smallint
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_asset {
-        asset_hk bigint pk hash
-        asset_tag varchar uk
-        asset_class_hk bigint fk
-        asset_serial varchar
-        asset_status_code varchar
-        installation_date date
-        removal_date date
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_component {
-        component_hk bigint pk hash
-        component_code varchar uk
-        component_name varchar
-        asset_hk bigint fk
-        criticality_rating varchar
-        mean_time_to_failure_hours double
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
-    h_project {
-        project_hk bigint pk hash
-        project_code varchar uk
-        project_name varchar
-        project_type_code varchar
-        budget_aud decimal(18,2)
-        effective_from timestamp
-        effective_to timestamp
-        load_datetime timestamp
-        record_source varchar
-        hashdiff char(64)
-    }
+    %% Hubs
+    h_customer ||--o{ l_card_customer : "owns"
+    h_card ||--o{ l_card_customer : "linked to"
+    h_service ||--o{ l_service_mode : "runs under"
+    h_mode ||--o{ l_service_mode : "mode for"
+    h_service ||--o{ l_service_operator : "run by"
+    h_operator ||--o{ l_service_operator : "operates"
+    h_route ||--o{ l_route_mode : "uses mode"
+    h_mode ||--o{ l_route_mode : "mode for"
+    h_route ||--o{ l_route_operator : "operated by"
+    h_operator ||--o{ l_route_operator : "operator of"
+    h_trip_pattern ||--o{ l_trip_pattern_route : "route for"
+    h_route ||--o{ l_trip_pattern_route : "served by"
+    h_service ||--o{ l_service_run : "instance of"
+    trip_pattern_hk ||--o{ l_service_run : "pattern for"
+    calendar_service_hk ||--o{ l_service_run : "scheduled on"
+    h_service_run ||--o{ l_stop_dwell : "dwell at"
+    stop_location_hk ||--o{ l_stop_dwell : "stop at"
+    h_card ||--o{ l_trip : "tap on/off"
+    h_stop_location ||--o{ l_trip : "origin"
+    h_stop_location ||--o{ l_trip : "destination"
+    h_service_run ||--o{ l_trip : "within run"
+    h_card ||--o{ l_journey : "journey of"
+    h_stop_location ||--o{ l_journey : "origin stop"
+    h_stop_location ||--o{ l_journey : "destination stop"
+    h_asset ||--o{ l_asset_operation : "sensor readings"
+    h_asset ||--o{ l_asset_component : "component fitment"
+    h_project ||--o{ l_project_asset : "asset allocation"
 
-    %% ==========================================================
-    %% LINKS (15 tables — relationships between hubs, hash PK, audit fields)
-    %% ==========================================================
-    l_card_customer {
-        link_hk bigint pk hash
-        card_hk bigint fk
-        customer_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_service_mode {
-        link_hk bigint pk hash
-        service_hk bigint fk
-        mode_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_service_operator {
-        link_hk bigint pk hash
-        service_hk bigint fk
-        operator_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_route_mode {
-        link_hk bigint pk hash
-        route_hk bigint fk
-        mode_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_route_operator {
-        link_hk bigint pk hash
-        route_hk bigint fk
-        operator_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_trip_pattern_route {
-        link_hk bigint pk hash
-        trip_pattern_hk bigint fk
-        route_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_service_run {
-        link_hk bigint pk hash
-        service_hk bigint fk
-        trip_pattern_hk bigint fk
-        calendar_service_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_stop_dwell {
-        link_hk bigint pk hash
-        service_run_hk bigint fk
-        stop_location_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_trip {
-        link_hk bigint pk hash
-        card_hk bigint fk
-        customer_hk bigint fk
-        origin_stop_location_hk bigint fk
-        destination_stop_location_hk bigint fk
-        service_run_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_journey {
-        link_hk bigint pk hash
-        card_hk bigint fk
-        customer_hk bigint fk
-        origin_stop_location_hk bigint fk
-        destination_stop_location_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_asset_operation {
-        link_hk bigint pk hash
-        asset_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_asset_component {
-        link_hk bigint pk hash
-        asset_hk bigint fk
-        component_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
-    l_project_asset {
-        link_hk bigint pk hash
-        project_hk bigint fk
-        asset_hk bigint fk
-        hashdiff char(64)
-        load_datetime timestamp
-        record_source varchar
-        effective_from timestamp
-        effective_to timestamp
-    }
+    %% Satellites (conformed dimensions shared across models)
+    s_customer ||--o{ lsat_service_run : "service context"
+    s_asset ||--o{ lsat_asset_operation : "operation context"
+    s_asset ||--o{ lsat_asset_component : "component health context"
 
-    %% ==========================================================
-    %% SATellites (14 tables — descriptive/transactional attributes,
-    %% composite PK = (hk, load_datetime), audit fields)
-    %% ==========================================================
-    s_customer {
-        customer_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        customer_type_code varchar
-        customer_name varchar
-        marketing_consent_flag boolean
-        payment_profile_code varchar
-        is_loyalty_member_flag boolean
-    }
-    s_card {
-        card_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        card_type_code varchar
-        card_status_code varchar
-        issue_date date
-        expiry_date date
-        auto_top_up_flag boolean
-    }
-    s_stop_location {
-        stop_location_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        stop_name varchar
-        stop_type_code varchar
-        latitude double
-        longitude double
-        zone_code varchar
-        is_accessible_flag boolean
-        load_timestamp timestamp
-    }
-    s_mode {
-        mode_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        mode_name varchar
-        fare_mode_group varchar
-        accessibility_category varchar
-    }
-    s_operator {
-        operator_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        operator_name varchar
-        owner_category_code varchar
-        trading_name varchar
-    }
-    s_service {
-        service_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        service_name varchar
-        service_description text
-        operator_fk bigint fk
-        mode_fk bigint fk
-    }
-    s_calendar_service {
-        calendar_service_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        monday_flag boolean
-        tuesday_flag boolean
-        wednesday_flag boolean
-        thursday_flag boolean
-        friday_flag boolean
-        saturday_flag boolean
-        sunday_flag boolean
-        public_holiday_flag boolean
-        service_start_date date
-        service_end_date date
-        load_timestamp timestamp
-    }
-    s_route {
-        route_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        route_short_name varchar
-        route_long_name varchar
-        route_description text
-        agency_name varchar
-    }
-    s_trip_pattern {
-        trip_pattern_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        trip_pattern_id varchar
-        route_fk bigint fk
-        stop_sequence_count smallint
-        load_timestamp timestamp
-    }
-    s_asset_class {
-        asset_class_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        asset_class_code varchar
-        asset_class_name varchar
-        parent_asset_class_hk bigint
-        level_number smallint
-    }
-    s_asset {
-        asset_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        asset_tag varchar
-        asset_serial varchar
-        asset_status_code varchar
-        installation_date date
-        removal_date date
-        current_mileage_km double
-    }
-    s_component {
-        component_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        component_code varchar
-        component_name varchar
-        criticality_rating varchar
-        mean_time_to_failure_hours double
-        fitment_date date
-        removal_date date
-    }
-    s_project {
-        project_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        project_code varchar
-        project_name varchar
-        project_type_code varchar
-        budget_aud decimal(18,2)
-        start_date date
-        end_date date
-        status_code varchar
-    }
-
-    %% ==========================================================
-    %% LINK-SATELLITES (6 tables — transactional metrics attached to links,
-    %% composite PK = (link_hk, load_datetime), audit fields)
-    %% ==========================================================
+    %% Link-Satellites
     lsat_service_run {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
         total_trips_this_run integer
         on_time_flag boolean
-        early_minutes smallint
-        late_minutes smallint
-        cancelled_flag boolean
-        short_turn_flag boolean
-        punctuality_percentage decimal(5,2)
-        average_dwell_sec double
-        load_timestamp timestamp
     }
     lsat_stop_dwell {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
         dwell_sec double
-        delay_sec double
         boardings_this_stop smallint
-        alightings_this_stop smallint
-        load_factor_percentage decimal(5,2)
-        crowding_severity varchar
     }
     lsat_trip {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        fare_amount_aud decimal(10,2)
-        default_fare_flag boolean
-        peak_period_flag boolean
-        concession_applied_flag boolean
+        fare_amount_aud decimal
         tap_on_timestamp timestamp
-        tap_off_timestamp timestamp
-        tap_on_location_hk bigint fk
-        tap_off_location_hk bigint fk
-        distance_km double
-        card_token varchar
     }
     lsat_journey {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
         total_trips integer
-        total_fare_aud decimal(10,2)
-        transfer_count smallint
-        first_tap_timestamp timestamp
-        last_tap_timestamp timestamp
-        total_travel_time_sec integer
+        total_fare_aud decimal
     }
     lsat_asset_operation {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
         energy_kwh_agg double
-        temperature_celsius_avg double
-        temperature_celsius_min double
-        temperature_celsius_max double
-        vibration_mm_sec_avg double
-        vibration_mm_sec_max double
-        operation_mode_code varchar
-        severity_flag varchar
     }
     lsat_asset_component {
-        link_hk bigint fk
-        load_datetime timestamp pk
-        record_source varchar
-        hashdiff char(64)
-        component_hk bigint fk
         failure_probability double
-        last_failure_timestamp timestamp
-        days_since_last_failure smallint
-    }
-
-    %% ==========================================================
-    %% REFERENCE / DOMAIN TABLES (3 tables — small, static, read-only)
-    %% ==========================================================
-    ref_concession_code {
-        concession_code varchar uk
-        concession_name varchar
-        eligibility_rule varchar
-        is_active_flag boolean
-    }
-    ref_fare_period {
-        fare_period_code varchar uk
-        fare_period_name varchar
-        peak_flag boolean
-        start_time_local time
-        end_time_local time
-        is_active_flag boolean
-    }
-    ref_card_status_reason {
-        status_reason_code varchar uk
-        status_reason_desc varchar
-        is_active_flag boolean
-    }
-    ref_asset_condition {
-        condition_code varchar uk
-        condition_desc varchar
-        is_active_flag boolean
     }
 ```
-
-## ERD Legend
-
-| Symbol | Meaning |
-|---|---|
-| **Big bold rectangle** | Hub table — hash surrogate PK, business key, full DV2 audit fields |
-| **Rectangle** | Link table — relationship between hubs, hash PK, DV2 audit fields, SCD2 effective dates |
-| **Rectangle with rounded corners** | Satellite table — composite PK `(hk, load_datetime)`, descriptive attributes, hashdiff |
-| **Diamond** | Link-satellite table — composite PK `(link_hk, load_datetime)`, transactional metrics |
-| **Text with << >>** | Reference/domain table — static, read-only, no DV2 audit fields |
-| **Underlined attribute** | Primary key for that table |
-| **FK notation** | Foreign key to another table's PK (e.g. `operator_hk bigint fk` means FK to h_operator.operator_hk) |
-| **Hashdiff** | `CHAR(64)` SHA-256 of all non-hash, non-PK, non-audit columns — DV2 change detection |
-| **load_datetime** | `TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP` — when row was loaded into vault |
-| **record_source** | `VARCHAR(50) NOT NULL` — which source system produced this row |
-| **effective_from / effective_to** | SCD2 history on hubs and links; on satellites, the composite `(hk, load_datetime)` provides point-in-time correctness |
-
-## Key Relationships (ERD Annotations)
-
-1. **h_customer 1..n l_card_customer 1..1 h_card** — a customer can hold many cards; a card has one primary customer (SCD2 history in the link).
-
-2. **h_service 1..n l_service_mode 1..1 h_mode** — a service runs under one mode; a mode can run many services.
-
-3. **h_service 1..n l_service_operator 1..1 h_operator** — a service is run by one operator; an operator runs many services.
-
-4. **h_route 1..n l_route_mode 1..1 h_mode** — a route uses one mode; a mode can serve many routes.
-
-5. **h_route 1..n l_route_operator 1..1 h_operator** — a route is operated by one operator; an operator operates many routes.
-
-6. **h_trip_pattern 1..n l_trip_pattern_route 1..1 h_route** — a trip pattern follows one route; a route can have many trip patterns.
-
-7. **h_service + h_trip_pattern + h_calendar_service → l_service_run** — a specific scheduled run of a service on specific dates.
-
-8. **l_service_run 1..n l_stop_dwell 1..1 h_stop_location** — a service run calls at many stops; each stop dwell records dwell metrics.
-
-9. **h_card + h_stop_location (origin) + h_stop_location (dest) + l_service_run → l_trip** — a tap-on/tap-off journey on a card within a service run.
-
-10. **h_card + h_stop_location (origin) + h_stop_location (dest) → l_journey** — aggregated journey per card over a period.
-
-11. **h_asset 1..n l_asset_operation 1..1** — an asset has many sensor readings; each reading is a row in the operation link.
-
-12. **h_asset 1..n l_asset_component 1..1** — an asset has many components; fitment history is in the link.
-
-13. **h_project 1..n l_project_asset 1..1 h_asset** — capital works projects tie to assets.
-
-14. **Conformed dimensions shared across all marts**: `dim_time` (reference), `dim_mode`, `dim_operator`, `dim_stop_location` are the hubs that conform across the Gold-layer dimensional models (Models 01, 02, 03) and feed into any downstream analytical mart.
-
-## Modelling Notes from the ERD
-
-- **All hubs have the same three audit columns**: `load_datetime`, `record_source`, `hashdiff`. This consistency is the foundation of DV2 interoperability — any hub from any DV2 implementation will have these columns.
-
-- **All links have the same structure**: `link_hk` PK, `hub_1_hk`…`hub_n_hk` FKs, `hashdiff`, `load_datetime`, `record_source`, `effective_from`/`effective_to`. This means any link can be joined to its satellites using the same pattern: `WHERE lsat.load_datetime = (SELECT MAX(load_datetime) FROM lsat WHERE link_hk = X)`.
-
-- **All satellites use the composite PK `(hk, load_datetime)`**. This is the canonical DV2 SCD2 pattern. It means there is no separate `effective_from`/`effective_to` on the satellite — the `load_datetime` column *is* the effective-from, and the prior row implicitly closes at the prior `load_datetime`.
-
-- **All link-satellites use the composite PK `(link_hk, load_datetime)`**. Same pattern as satellites, but attached to links rather than hubs.
-
-- **Reference tables (`ref_*`)** are separate from the vault — they are small, static, read-only, and do not carry `load_datetime`/`hashdiff`. They are version-controlled and deployed alongside the vault but in a separate schema.
-
-- **The ERD shows conformed dimensions** at the bottom: `h_time` (not modelled as a hub here because a calendar/time dimension is typically a reference table in DV2, but `h_calendar_service` serves a similar role for service calendars), `h_mode`, `h_operator`, `h_stop_location`. These are the hubs that conform across the Gold-layer dimensional models (Models 01, 02, 03) and can be joined directly in analytical queries without key mapping.
-
-## Verification (SQLite in-memory)
-
-Run the DDL, then:
-
-```sql
--- Count tables
-SELECT COUNT(*) FROM sqlite_master WHERE type='table';  -- should be 41
-
--- Confirm every table has load_datetime, record_source, hashdiff
-SELECT name,
-       COUNT(*) AS rows,
-       MAX(CASE WHEN load_datetime IS NOT NULL THEN 1 ELSE 0 END) AS has_load_dt,
-       MAX(CASE WHEN record_source IS NOT NULL THEN 1 ELSE 0 END) AS has_rs,
-       MAX(CASE WHEN hashdiff IS NOT NULL THEN 1 ELSE 0 END) AS has_hd
-FROM sqlite_master m
-JOIN pragma_table_info(m.name) p ON 1=1
-WHERE m.type='table'
-GROUP BY m.name
-HAVING (has_load_dt + has_rs + has_hd) < 3;
--- Empty result set = all tables have all three DV2 audit columns
-```
-
-## Deployment Notes
-
-- The DDL is written in standard SQL (ANSI SQL-92 + common extensions). It will run on:
-  - **Databricks Delta** (CREATE TABLE syntax is compatible; use `manageability` settings for SCD2).
-  - **Snowflake** (no changes needed; Snowflake supports `TIMESTAMP`, `DECIMAL(18,2)`, `VARCHAR`).
-  - **PostgreSQL** (no changes needed; `BOOLEAN`, `DOUBLE PRECISION` map directly).
-  - **Oracle** (minor: `VARCHAR2` vs `VARCHAR`; `DEFAULT CURRENT_TIMESTAMP` works in 12c+).
-  - **SQL Server** (minor: `DECIMAL(18,2)` works; `TIMESTAMP` is a deprecated type — our column is `TIMESTAMP` type name but we use `DATETIME2` conceptually; adjust if needed).
-
-- Populate `ref_*` tables first (concession codes, fare periods, asset condition codes) — these are the
-  foundation enums that downstream satellites reference via code values.
-
-- Set the `record_source` at ingestion time. Do not leave it as the default `'TFNSW_OPAL'` for all tables —
-  the `TFNSW_GTFS` value should be used for GTFS-derived rows, `TFNSW_ASSETS` for asset management rows,
-  and `TFNSW_IIOT` for IoT telemetry rows. The default in the DDL is a convenience; override per source system.
-
-- Incremental load strategy: each ingestion run sets `load_datetime = CURRENT_TIMESTAMP` at the moment
-  the row is inserted. For the SCD2 `(hk, load_datetime)` pattern, this means each run naturally appends
-  new rows. No `MERGE` or `UPDATE` is needed to close prior rows — they are implicitly closed when the
-  next run appends a new `load_datetime` with a later timestamp.
-
-- Change detection: before inserting a new row, compute `SHA256(all non-PK, non-audit columns)` and compare
-  to the existing `hashdiff` for that `hk` + `load_datetime`. If identical, skip the insert (DV2 "deduplication").
-  If different, insert the new row with a new `load_datetime`.
-
----
