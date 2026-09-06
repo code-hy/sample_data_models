@@ -1,4 +1,4 @@
-```markdown
+
 # Detailed Solution Design (DSD) Document
 ## Transport for NSW (TfNSW) Enterprise Data Analytics Platform
 
@@ -224,4 +224,4 @@ Implemented via Great Expectations or native dbt tests.
 
 ---
 *End of Detailed Solution Design Document*
-```
+
