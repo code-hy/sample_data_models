@@ -1,4 +1,4 @@
-````markdown
+
 # Transport for NSW
 ## Enterprise Data Analytics Architecture
 
@@ -855,4 +855,4 @@ Business outcome → capability → data domain → source → ingestion → int
 ---
 
 *TfNSW Enterprise Data Analytics Architecture | 4 September 2026*
-````
+
