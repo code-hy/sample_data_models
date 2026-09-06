@@ -1,4 +1,4 @@
-Data Analytics Architect — Project Navigation Cheat Sheet & Checklist
+# Data Analytics Architect — Project Navigation Cheat Sheet & Checklist
 
 «Purpose: A practical field guide for a Data Analytics Architect entering a new project.
 Target audience: Data Analytics Architects, Data Architects, Solution Designers, Data Modellers, Data Engineers and Analytics Leads.»
