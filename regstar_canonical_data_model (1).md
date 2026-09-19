@@ -38,6 +38,41 @@ The REGSTAR architecture decouples legacy EBCDIC, VSAM, and Db2 data structures 
 
 ---
 
+```
+flowchart TD
+    PARTY["CDM_PARTY<br/><i>(Individual / Org)</i>"]
+
+    LICENCE["CDM_LICENCE<br/><i>(Entitlement)</i>"]
+    PERMIT["CDM_PERMIT_SCHEME<br/><i>(Permits & Schemes)</i>"]
+    VEH_REG["CDM_VEH_REG<br/><i>(Registration Domain)</i>"]
+    TRANSACTN["CDM_TRANSACTN & PAYMENTS<br/><i>(Revenue & Finance)</i>"]
+
+    DEMERIT["CDM_DEMERIT_SANCTION<br/><i>(Compliance)</i>"]
+    ASSET["CDM_VEHICLE_ASSET<br/><i>(Physical Asset)</i>"]
+
+    REF["CDM_REF_* (Enterprise Reference Data Layer)<br/><i>Cross-cutting: fee_schedules, offence_codes, scheme_types, plate_styles</i>"]
+
+    %% Core 1:N Party Relationships
+    PARTY -->|"1:N"| LICENCE
+    PARTY -->|"1:N"| PERMIT
+    PARTY -->|"1:N"| ASSET
+    PARTY -->|"1:N"| VEH_REG
+    PARTY -->|"1:N"| TRANSACTN
+
+    %% Secondary Relationships
+    LICENCE -->|"1:N"| DEMERIT
+    PERMIT -->|"1:N"| ASSET
+    VEH_REG -->|"1:N"| ASSET
+    TRANSACTN -->|"1:N<br/>(Fee / Duty Surcharge)"| ASSET
+
+    %% Reference Layer Support
+    REF ==> DEMERIT
+    REF ==> ASSET
+
+    %% Styling
+    style REF fill:#f4f4f6,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5
+```
+
 ## 2. Canonical Data Model Architecture (7 Enterprise Domains)
 
 All canonical entities enforce **UUIDv4** surrogate primary keys, **ISO 8601 UTC** temporal tracking (`TSTZRANGE`), standard state-machine status codes, and **ISO 3166** country/jurisdiction codes.
