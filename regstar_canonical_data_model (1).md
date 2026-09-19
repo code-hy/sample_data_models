@@ -38,7 +38,7 @@ The REGSTAR architecture decouples legacy EBCDIC, VSAM, and Db2 data structures 
 
 ---
 
-```
+```mermaid
 flowchart TD
     PARTY["CDM_PARTY<br/><i>(Individual / Org)</i>"]
 
